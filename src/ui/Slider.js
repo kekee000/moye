@@ -106,7 +106,9 @@ define(function (require) {
          * @property {string} options.animOptions.direction 滑动门的滚动方向
          *      `horizontal` or `vertical`
          *
-         *
+         * @property {boolean} options.animOptions.rollCycle 是否用循环滚模式 
+         *      默认滚动到头会直接滚回去，循环滚会平滑一点
+         * 
          * @private
          */
         options: {
@@ -157,7 +159,10 @@ define(function (require) {
                 interval: 200,
 
                 //滑动门的滚动方向
-                direction: ''
+                direction: '',
+
+                //是否用循环滚模式
+                rollCycle: ''
             }
         },
 
@@ -238,7 +243,8 @@ define(function (require) {
 
             if (index === 'start') {
                 goTo = 0;
-            } else if (index === 'end') {
+            }
+            else if (index === 'end') {
                 goTo = this.count - 1;
             } else {
                 goTo = +index || 0;
@@ -250,7 +256,8 @@ define(function (require) {
 
             if (goTo >= this.count) {
                 goTo = this.options.circle ? 0 : this.count - 1;
-            } else if (goTo < 0) {
+            }
+            else if (goTo < 0) {
                 goTo = this.options.circle ? this.count - 1 : 0;
             }
 
@@ -365,6 +372,13 @@ define(function (require) {
                 lib.addClass(this.main, options.prefix);
                 lib.on(this.main, 'mouseenter', this.onEnter);
                 lib.on(this.main, 'mouseleave', this.onLeave);
+
+                //这里特殊开放slideAnim的配置
+                // 不然额外配置会不起作用
+                options.animOptions = lib.extend(
+                    options.animOptions, 
+                    this.srcOptions.animOptions
+                );
 
                 //根据class查找未知的元素
                 options.stage = lib.g(options.stage)

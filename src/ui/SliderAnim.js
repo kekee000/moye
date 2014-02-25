@@ -194,9 +194,11 @@ define(function (require) {
         bounce: function (p) {
             if (p < (1 / 2.75)) {
                 return (7.5625 * p * p);
-            } else if (p < (2 / 2.75)) {
+            }
+            else if (p < (2 / 2.75)) {
                 return (7.5625 * (p -= (1.5 / 2.75)) * p + 0.75);
-            } else if (p < (2.5 / 2.75)) {
+            }
+            else if (p < (2.5 / 2.75)) {
                 return (7.5625 * (p -= (2.25 / 2.75)) * p + 0.9375);
             }
             return (7.5625 * (p -= (2.625 / 2.75)) * p + 0.984375);
@@ -370,6 +372,10 @@ define(function (require) {
 
             //设置滑动门的方向 `horizontal` or `vertical`
             this.yAxis = options.direction === 'vertical';
+
+            //是否采用循环滚模式滚动，从结尾平滑滚动到开头，
+            // 需要拷贝首节点到末尾来支持
+            this.rollCycle = options.rollCycle || false;
         },
 
         /**
@@ -381,6 +387,17 @@ define(function (require) {
 
             var stageWidth = this.slider.stageWidth;
             var stageHeight = this.slider.stageHeight;
+            var maxIndex = this.slider.count - 1;
+
+            //如果使用循环滚模式
+            if(this.rollCycle) {
+                //初始化要拷贝首节点到最后
+                if( !this.cycleNode ) {
+                    var cloned = this.slider.stage.firstChild.cloneNode();
+                    this.slider.stage.appendChild(cloned);
+                    this.cycleNode = true;
+                }
+            }
 
             //这里为了避免reflow使用这种书写方式
             if (this.yAxis) {
@@ -398,7 +415,23 @@ define(function (require) {
                     this.curPos = stageWidth * lastIndex;
                 }
                 this.targetPos = stageWidth * index;
+
+                // 注意，循环模式没有处理正在滚动时的定位问题
+                // 所以在使用时可以设置slider的switchDelay大于
+                // 滚动动画的时间防止连续点击
+                if(this.rollCycle) {
+                    //结尾滚开头
+                    if(index === 0 && lastIndex === maxIndex) {
+                        this.targetPos = stageWidth * (maxIndex + 1);
+                    }
+                    //开头滚结尾
+                    else if(index === maxIndex && lastIndex === 0 
+                        && !this.isBusy()) {
+                        this.curPos = stageWidth * (maxIndex + 1);
+                    }
+                }
             }
+
         },
 
         /**
@@ -430,12 +463,14 @@ define(function (require) {
             if (opacity === 1) {
                 element.style.filter = '';
                 element.style.opacity = '';
-            } else if (lib.browser.ie < 9) {
+            }
+            else if (lib.browser.ie < 9) {
                 element.style.filter = ''
                     + 'alpha(opacity='
                     + (100 * opacity)
                     + ')';
-            } else {
+            }
+            else {
                 element.style.opacity = opacity;
             }
         },
@@ -455,6 +490,15 @@ define(function (require) {
 
             if (undefined === this.lastIndex) {
                 this.lastIndex = l - 1;
+
+                //如果是2个元素，则默认第一个元素设为top
+                // 否则第一次会不和谐
+                if(l <= 2) {
+                    lib.addClass(
+                        childNodes[this.lastIndex = 0], 
+                        this.slider.getClass('top')
+                    );
+                }
             }
 
             //还原当前元素

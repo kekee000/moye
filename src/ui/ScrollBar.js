@@ -257,7 +257,8 @@ define(function (require) {
             //取消舍入误差
             if (pos < 0.005) {
                 pos = 0;
-            } else if (1 - pos < 0.005) {
+            }
+            else if (1 - pos < 0.005) {
                 pos = 1;
             }
 
@@ -369,7 +370,8 @@ define(function (require) {
         scrollTo: function (pos) {
             if (pos === 'begin') {
                 pos = 0;
-            } else if (pos === 'end') {
+            }
+            else if (pos === 'end') {
                 pos = 1;
             }
             //滚动距离
