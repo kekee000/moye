@@ -102,7 +102,7 @@ define(function (require) {
          * @property {Object} options.animOptions 轮播动画选项，
          *      不同的动画效果配置可能不一样
          * @property {string} options.animOptions.easing 使用的动画算子
-         * @property {Number} options.animOptions.interval 每次动画时间间隔
+         * @property {Number} options.animOptions.duration 每次动画持续时间
          * @property {string} options.animOptions.direction 滑动门的滚动方向
          *      `horizontal` or `vertical`
          *
@@ -155,8 +155,8 @@ define(function (require) {
                 //使用的动画算子
                 easing: '',
 
-                //每次动画时间间隔
-                interval: 200,
+                //每次动画持续时间
+                duration: 200,
 
                 //滑动门的滚动方向
                 direction: '',

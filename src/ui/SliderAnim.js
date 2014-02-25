@@ -240,13 +240,14 @@ define(function (require) {
          *
          * @param {module:Slider} slider slider对象
          * @param {Object} options 动画配置选项
-         * @param {Object} options.interval 每一次动画换的执行时间
+         * @param {Object} options.duration 每一次动画换的执行时间
+         * @param {Object} options.interval 每一次动画换的执行时间(已废弃)
          * @param {string} options.easing 动画算子
          */
         initialize: function (slider, options) {
             var me = this;
             me.slider = slider;
-            me.interval = options.interval || 300;
+            me.interval = options.duration || options.interval || 300;
             me.easingFn = SliderAnim.easing[options.easing || 'easing'];
 
             var _timeHandler = me.timeHandler;

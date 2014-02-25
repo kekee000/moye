@@ -13,7 +13,7 @@ define(function (require) {
         },
         options: {
             animOptions: {
-                interval: 200
+                duration: 200
             }
         }
     });
