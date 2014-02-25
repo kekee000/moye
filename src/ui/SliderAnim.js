@@ -416,18 +416,19 @@ define(function (require) {
                 }
                 this.targetPos = stageWidth * index;
 
-            // 注意，循环模式没有处理正在滚动时的定位问题
-            // 所以在使用时可以设置slider的switchDelay大于
-            // 滚动动画的时间防止连续点击
-            if(this.rollCycle) {
-                //结尾滚开头
-                if(index === 0 && lastIndex === maxIndex) {
-                    this.targetPos = stageWidth * (maxIndex + 1);
-                }
-                //开头滚结尾
-                else if(index === maxIndex && lastIndex === 0 
-                    && !this.isBusy()) {
-                    this.curPos = stageWidth * (maxIndex + 1);
+                // 注意，循环模式没有处理正在滚动时的定位问题
+                // 所以在使用时可以设置slider的switchDelay大于
+                // 滚动动画的时间防止连续点击
+                if(this.rollCycle) {
+                    //结尾滚开头
+                    if(index === 0 && lastIndex === maxIndex) {
+                        this.targetPos = stageWidth * (maxIndex + 1);
+                    }
+                    //开头滚结尾
+                    else if(index === maxIndex && lastIndex === 0 
+                        && !this.isBusy()) {
+                        this.curPos = stageWidth * (maxIndex + 1);
+                    }
                 }
             }
 
