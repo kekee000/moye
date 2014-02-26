@@ -12,25 +12,6 @@ define(function (require) {
     var Control = require('./Control');
 
     /**
-     * GUID计数
-     *
-     * @type {number}
-     */
-    var counter = 0;
-
-    /**
-     * 获得GUID的函数
-     * @param {string} tag GUID标签
-     * @return {string} 一个不重复的guid字符串
-     *
-     * @inner
-     */
-    function guid(tag) {
-        return 'ui-float-tip-' + (tag ? tag + '-' : '') + (counter++);
-    }
-
-
-    /**
      * 对话框
      *
      * @extends module:Control
@@ -90,18 +71,10 @@ define(function (require) {
             //是否固定，不随视窗滚动，不支持IE6，IE6自动设置为fixed=0
             fixed: 1,
 
-            //提示框的层级
-            level: '',
-
             //模板框架
             tpl: ''
-                + '<div id="#{id}" type="#{type}"'
-                +   ' class="#{tipClass}"'
-                +   ' style="width:#{width};position:#{position};'
-                +   'top:#{top};z-index:#{level}">'
                 +   '<i class="#{iconClass}"></i>'
                 +   '<div class="#{contentClass}">#{content}</div>'
-                + '</div>'
         },
 
         /**
@@ -154,28 +127,33 @@ define(function (require) {
         create: function () {
             var opt = this.options;
             var cls = {
-                id: this.id,
                 content: opt.content,
-                type: this.type,
-                width: opt.width,
-                top: opt.top,
-                position: opt.fixed ? 'fixed' : 'absolute',
-                tipClass: this.getClass() + ' ' + this.getClass('hide'),
                 iconClass: this.getClass('icon'),
                 contentClass: this.getClass('content')
             };
 
-            //获取HTML
-            var html = this.options.tpl.replace(
+            //渲染主框架内容
+            var main = this.createElement('div', {
+                'class': this.getClass()
+            });
+
+            lib.setStyles(main, {
+                width: opt.width,
+                left: opt.left,
+                top: opt.top,
+                position: opt.fixed ? 'fixed' : 'absolute',
+                zIndex: opt.level
+            });
+
+            main.innerHTML = this.options.tpl.replace(
                 /#\{([\w-.]+)\}/g,
                 function ($0, $1) {
                     return cls[$1] || '';
                 }
             );
 
-            //插入创建的元素，
-            document.body.insertAdjacentHTML('beforeend', html);
-            this.main = lib.g(this.id);
+            document.body.appendChild(main);
+            this.main = main;
 
         },
 
@@ -201,7 +179,6 @@ define(function (require) {
                     options.fixed = 0;
                 }
 
-                this.id = guid();
                 this.create();
                 this.rendered = true;
             }
@@ -225,12 +202,12 @@ define(function (require) {
                     top: top
                 };
 
-                if (!left) {
+                if (left === '') {
                     cssOpt.left = '50%';
                     cssOpt.marginLeft = (-this.main.offsetWidth / 2) + 'px';
                 }
 
-                if (!top) {
+                if (top === '') {
                     //这里固定为0.4的位置
                     cssOpt.top = (lib.getViewHeight() - this.main.offsetHeight)
                         * 0.4 + 'px';

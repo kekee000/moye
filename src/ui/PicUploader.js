@@ -13,25 +13,6 @@ define(function (require) {
     var Control = require('./Control');
 
     /**
-     * GUID计数
-     *
-     * @type {number}
-     */
-    var counter = 0;
-
-    /**
-     * 获得GUID的函数
-     * @param {string} tag GUID标签
-     * @return {string} 一个不重复的guid字符串
-     *
-     * @inner
-     */
-
-    function guid(tag) {
-        return 'ui-pic-uploader-' + (tag ? tag + '-' : '') + (counter++);
-    }
-
-    /**
      * 检查浏览器是否支持FileReader
      *
      * @type {boolean}
@@ -108,7 +89,7 @@ define(function (require) {
          * @type {Object}
          * @property {(string | HTMLElement)} options.main 控件渲染容器
          * @property {string} options.prefix class默认前缀
-         * @property {int} options.maxCount 最多选择的图片个数
+         * @property {number} options.maxCount 最多选择的图片个数
          * @property {Regexp} options.fileType 图片类型正则
          * @property {string} options.tpl 使用的模板
          *
@@ -130,14 +111,12 @@ define(function (require) {
 
             //模板框架
             tpl: ''
-                + '<div id="#{id}" class="#{pickerClass} #{curClass}">'
                 +   '<div class="#{closeClass}" title="关闭">×</div>'
                 +   '<div class="#{picClass}"></div>'
                 +   '<div class="#{titleClass}">点击上传</div>'
                 +   '<a href="javascript:;" class="#{wrapperClass}">'
                 +       '<input type="file" class="#{fileClass}">'
                 +   '</a>'
-                + '</div>'
         },
 
         /**
@@ -337,30 +316,29 @@ define(function (require) {
          * @private
          */
         create: function () {
-            var id = guid('picker');
             var cls = {
-                id: id,
-                pickerClass: this.getClass('picker'),
                 closeClass: this.getClass('close'),
                 picClass: this.getClass('pic'),
                 titleClass: this.getClass('title'),
                 fileClass: this.getClass('file'),
-                curClass: this.getClass('cur'),
                 wrapperClass: this.getClass('wrapper')
             };
 
-            //获取HTML
-            var html = this.options.tpl.replace(
+            //渲染主框架内容
+            var picker = this.createElement('div', {
+                'class': this.getClass('picker') + ' ' + this.getClass('cur')
+            });
+
+            this.options.main.appendChild(picker);
+
+            picker.innerHTML = this.options.tpl.replace(
                 /#\{([\w-.]+)\}/g,
                 function ($0, $1) {
                     return cls[$1] || '';
                 }
             );
 
-            //插入创建的元素，
-            this.options.main.insertAdjacentHTML('beforeend', html);
-
-            this._bindPicker(this.curPicker = id);
+            this._bindPicker(this.curPicker = picker);
         },
 
 
@@ -417,7 +395,6 @@ define(function (require) {
          */
         render: function () {
             if (!this.rendered) {
-                this.id = guid();
                 this.create();
                 this.rendered = true;
             }
@@ -464,7 +441,7 @@ define(function (require) {
          */
         removeAt: function (index) {
             var list = lib.q(this.getClass('picker'), this.options.main);
-            if (list[index].id !== this.curPicker) {
+            if (list[index] !== this.curPicker) {
                 this._removePicker(list[index]);
             }
             return this;
@@ -541,7 +518,7 @@ define(function (require) {
                     'click',
                     this._closeClick
                 );
-                this.curPicker = 0;
+                this.curPicker = null;
             }
 
             this.options.main.innerHTML = '';

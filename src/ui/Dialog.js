@@ -12,25 +12,6 @@ define(function (require) {
     var Control = require('./Control');
 
     /**
-     * GUID计数
-     *
-     * @type {number}
-     */
-    var counter = 0;
-
-    /**
-     * 获得GUID的函数
-     * @param {string} tag GUID标签
-     * @return {string} 一个不重复的guid字符串
-     *
-     * @inner
-     */
-
-    function guid(tag) {
-        return 'ui-dlg-' + (tag ? tag + '-' : '') + (counter++);
-    }
-
-    /**
      * 移除当前的元素
      *
      * @param {HTMLDomElement} domElement 当前元素
@@ -105,7 +86,6 @@ define(function (require) {
          */
         _init: function (opts) {
             var div = document.createElement('div');
-            div.id = opts.id;
             div.className = opts.className;
             lib.setStyles(div, opts.styles);
             document.body.appendChild(div);
@@ -320,15 +300,10 @@ define(function (require) {
 
             //模板框架
             tpl: ''
-                + '<div id="#{id}" ui-type="#{type}" '
-                + 'style="width:#{width};'
-                + 'position:#{position};top:#{top};z-index:#{level}" '
-                + 'class="#{dialogClass}">'
                 + '<div class="#{closeClass}">×</div>'
                 + '<div class="#{headerClass}">#{title}</div>'
                 + '<div class="#{bodyClass}">#{content}</div>'
                 + '<div class="#{footerClass}">#{footer}</div>'
-                + '</div>'
         },
 
         /**
@@ -383,13 +358,6 @@ define(function (require) {
         _renderDOM: function () {
             var opt = this.options;
             var data = {
-                id: this.id,
-                type: this.type,
-                width: opt.width,
-                top: opt.top,
-                position: opt.fixed ? 'fixed' : 'absolute',
-                level: opt.level,
-                dialogClass: this.getClass(),
                 closeClass: this.getClass('close'),
                 headerClass: this.getClass('header'),
                 bodyClass: this.getClass('body'),
@@ -401,14 +369,25 @@ define(function (require) {
             };
 
             //渲染主框架内容
-            var html = format(this.options.tpl, data);
-            document.body.insertAdjacentHTML('beforeEnd', html);
-            this.main = lib.g(this.id);
+            var main = this.createElement('div', {
+                'class': this.getClass()
+            });
+
+            lib.setStyles(main, {
+                width: opt.width,
+                top: opt.top,
+                position: opt.fixed ? 'fixed' : 'absolute',
+                zIndex: opt.level
+            });
+
+            main.innerHTML = format(this.options.tpl, data);
+
+            document.body.appendChild(main);
+            this.main = main;
 
             //如果显示mask，则需要创建mask对象
             if (this.options.showMask) {
                 this.mask = Mask.create({
-                    id: 'mask-' + this.id,
                     className: this.getClass('mask'),
                     styles: {
                         zIndex: this.options.level - 1
@@ -510,12 +489,12 @@ define(function (require) {
                     top: top
                 };
 
-                if (!left) {
+                if ('' === left) {
                     cssOpt.left = '50%';
                     cssOpt.marginLeft = (-this.main.offsetWidth / 2) + 'px';
                 }
 
-                if (!top) {
+                if ('' === top) {
                     //这里固定为0.35的位置
                     cssOpt.top = (
                     lib.getViewHeight() - this.main.offsetHeight) * 0.35 + 'px';
@@ -526,20 +505,16 @@ define(function (require) {
 
             //absolute则需要动态计算left，top使dialog在视窗的指定位置
             else {
-                if (!left) {
-                    var scrollLeft = window.pageXOffset
-                        || document.documentElement.scrollLeft
-                        || document.body.scrollLeft;
+                if ('' === left) {
+                    var scrollLeft = lib.getScrollLeft();
                     left = (scrollLeft
                         + (lib.getViewWidth()
                         - this.main.offsetWidth) / 2)
                         + 'px';
                 }
 
-                if (!top) {
-                    var scrollTop = window.pageYOffset
-                        || document.documentElement.scrollTop
-                        || document.body.scrollTop;
+                if ('' === top) {
+                    var scrollTop = lib.getScrollTop();
                     //这里固定为0.35的位置
                     top = (scrollTop
                         + (lib.getViewHeight() - this.main.offsetHeight) * 0.35)
@@ -677,7 +652,6 @@ define(function (require) {
                     options.fixed = 0;
                 }
 
-                this.id = guid();
                 this._renderDOM();
 
                 //设置渲染的内容
@@ -721,15 +695,6 @@ define(function (require) {
 
         }
     });
-
-    /**
-     * 获得guid的函数
-     * @see guid
-     *
-     * @type {string}
-     * @static
-     */
-    Dialog.guid = guid;
 
     return Dialog;
 });

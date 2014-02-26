@@ -240,14 +240,13 @@ define(function (require) {
          *
          * @param {module:Slider} slider slider对象
          * @param {Object} options 动画配置选项
-         * @param {Object} options.duration 每一次动画换的执行时间
-         * @param {Object} options.interval 每一次动画换的执行时间(已废弃)
+         * @param {Object} options.interval 每一次动画换的执行时间
          * @param {string} options.easing 动画算子
          */
         initialize: function (slider, options) {
             var me = this;
             me.slider = slider;
-            me.interval = options.duration || options.interval || 300;
+            me.interval = options.interval || 300;
             me.easingFn = SliderAnim.easing[options.easing || 'easing'];
 
             var _timeHandler = me.timeHandler;
@@ -391,9 +390,9 @@ define(function (require) {
             var maxIndex = this.slider.count - 1;
 
             //如果使用循环滚模式
-            if(this.rollCycle) {
+            if (this.rollCycle) {
                 //初始化要拷贝首节点到最后
-                if( !this.cycleNode ) {
+                if (!this.cycleNode) {
                     var cloned = this.slider.stage.firstChild.cloneNode();
                     this.slider.stage.appendChild(cloned);
                     this.cycleNode = true;
@@ -420,13 +419,13 @@ define(function (require) {
                 // 注意，循环模式没有处理正在滚动时的定位问题
                 // 所以在使用时可以设置slider的switchDelay大于
                 // 滚动动画的时间防止连续点击
-                if(this.rollCycle) {
+                if (this.rollCycle) {
                     //结尾滚开头
-                    if(index === 0 && lastIndex === maxIndex) {
+                    if (index === 0 && lastIndex === maxIndex) {
                         this.targetPos = stageWidth * (maxIndex + 1);
                     }
                     //开头滚结尾
-                    else if(index === maxIndex && lastIndex === 0 
+                    else if (index === maxIndex && lastIndex === 0 
                         && !this.isBusy()) {
                         this.curPos = stageWidth * (maxIndex + 1);
                     }
@@ -494,7 +493,7 @@ define(function (require) {
 
                 //如果是2个元素，则默认第一个元素设为top
                 // 否则第一次会不和谐
-                if(l <= 2) {
+                if (l <= 2) {
                     lib.addClass(
                         childNodes[this.lastIndex = 0], 
                         this.slider.getClass('top')
